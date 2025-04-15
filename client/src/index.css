@@ -1,0 +1,104 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+}
+
+/* FullCalendar Minimal Theme */
+.fc {
+  --fc-border-color: hsl(220, 13%, 91%);
+  --fc-page-bg-color: transparent;
+  --fc-neutral-bg-color: transparent;
+  font-family: inherit;
+}
+
+.fc .fc-daygrid-day-frame {
+  min-height: 100px;
+  padding: 4px;
+}
+
+.fc-theme-standard td, .fc-theme-standard th {
+  border-color: var(--fc-border-color);
+}
+
+.fc-col-header-cell-cushion {
+  color: hsl(var(--muted-foreground));
+  text-decoration: none !important;
+  font-weight: 500;
+  font-size: 0.75rem;
+  padding: 8px;
+}
+
+.fc-daygrid-day-number {
+  color: hsl(var(--foreground));
+  text-decoration: none !important;
+  font-size: 0.875rem;
+  padding: 4px;
+}
+
+.fc-daygrid-day.fc-day-today {
+  background-color: hsl(var(--accent) / 0.1) !important;
+}
+
+.fc-event {
+  padding: 2px 4px !important;
+  border-radius: 3px !important; 
+  border: none !important;
+  font-size: 0.75rem !important;
+  margin-bottom: 2px;
+}
+
+.fc-h-event .fc-event-title {
+  font-weight: 500;
+  padding: 1px;
+}
+
+.fc-daygrid-more-link {
+  font-size: 0.75rem;
+  color: hsl(var(--primary));
+}
+
+.fc-popover {
+  border-radius: 6px;
+  border: 1px solid var(--fc-border-color);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.fc-view-harness {
+  background-color: transparent;
+}
+
+.fc-col-header, .fc-daygrid-body, .fc-scrollgrid-sync-table {
+  width: 100% !important;
+}
+
+.fc .fc-daygrid-day.fc-day-other {
+  background-color: hsl(var(--muted) / 0.03);
+}
+
+.fc .fc-more-popover .fc-popover-body {
+  padding: 8px;
+}
+
+@media (max-width: 640px) {
+  .fc-event {
+    font-size: 0.65rem !important;
+  }
+  
+  .fc-header-toolbar {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .fc .fc-daygrid-day-frame {
+    min-height: 60px;
+  }
+}

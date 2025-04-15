@@ -1,0 +1,84 @@
+Please apply the following corrections and improvements to my existing Next.js (App Router) based client renewal management application:
+
+🧾 Dashboard Page (app/dashboard)
+Upcoming Renewals Table
+
+The table design is currently off. Please:
+
+Improve padding, column spacing, and overall alignment.
+
+Add hover and alternate row styles.
+
+Make headers sticky if content overflows.
+
+Improve readability with clean fonts and background.
+
+Recent Activity
+
+Remove the “Recent Activity” section completely.
+
+Instead, increase the width/height of the “Upcoming Renewals” table to use the freed-up space.
+
+Calendar Display on Dashboard
+
+The calendar is either broken or appears defective.
+
+Ensure a properly styled, functional calendar preview appears in the dashboard (maybe a mini version of the full calendar page).
+
+Consider using a calendar library like FullCalendar for consistency.
+
+🧾 Renewals Page (app/renewals)
+Create/Update Functionality
+
+Currently, create and update actions fail.
+
+Fix the form submission logic for:
+
+Validation errors.
+
+API POST/PUT request handling.
+
+Proper UI feedback (success/error).
+
+Make sure the data is correctly saved to and retrieved from the MySQL database.
+
+🗓️ Calendar Page (app/calendar)
+Non-functional Calendar
+
+Calendar currently shows only dots without data.
+
+Fix event mapping logic:
+
+Load upcoming renewals from the database.
+
+Map them properly to FullCalendar (or similar).
+
+Each renewal should show client name + service type on the calendar.
+
+Improve calendar styling for better UI.
+
+🧭 Sidebar (Global Navigation)
+Logout Button Positioning
+
+The logout tab/button is misaligned and appears hanging in the middle.
+
+Fix its placement so that it:
+
+Stays at the bottom of the sidebar.
+
+Is consistently aligned and styled.
+
+Sidebar Stickiness
+
+Sidebar should be sticky/fixed on the left.
+
+Should not scroll with page content.
+
+Must maintain consistent height and responsive behavior across all screen sizes.
+
+🧪 Additional Notes
+Ensure all changes are mobile responsive.
+
+Use TailwindCSS or your current design system (e.g., ShadCN, Radix) consistently.
+
+Confirm that all fixes work seamlessly across pages.
