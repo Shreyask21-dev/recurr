@@ -104,7 +104,8 @@ export default function NewRenewalPage() {
     
     try {
       await apiRequest("POST", "/api/renewals", data);
-      queryClient.invalidateQueries({ queryKey: ["/api/renewals"] });
+      // queryClient.invalidateQueries({ queryKey: ["/api/renewals"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/renewals?withRelations=true"] });
       queryClient.invalidateQueries({ queryKey: ["/api/dashboard"] });
       
       toast({
@@ -284,7 +285,7 @@ export default function NewRenewalPage() {
                     control={form.control}
                     name="amount"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="flex flex-col">
                         <FormLabel>Amount (₹) *</FormLabel>
                         <FormControl>
                           <Input type="number" min="0" step="0.01" {...field} />

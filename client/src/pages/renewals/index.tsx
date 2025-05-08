@@ -56,7 +56,7 @@ export default function RenewalsPage() {
   const handleMarkAsPaid = async (id: number) => {
     try {
       await apiRequest("PUT", `/api/renewals/${id}`, { isPaid: true });
-      queryClient.invalidateQueries({ queryKey: ["/api/renewals"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/renewals?withRelations=true"] });
       queryClient.invalidateQueries({ queryKey: ["/api/dashboard"] });
       toast({
         title: "Success",

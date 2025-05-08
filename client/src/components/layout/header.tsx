@@ -36,16 +36,6 @@ export default function Header() {
 
         <div className="flex items-center gap-3">
           {/* Notifications */}
-          <div className="relative">
-            <button
-              type="button"
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:text-slate-600"
-            >
-              <BellIcon className="h-5 w-5" />
-              <span className="sr-only">Notifications</span>
-            </button>
-            <div className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></div>
-          </div>
 
           {/* Search */}
           <div className="relative hidden md:block">

@@ -14,7 +14,13 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import { EventClickArg } from '@fullcalendar/core';
 
+
+import { useRef } from "react";
+import type { CalendarApi } from "@fullcalendar/core";
+
 export default function CalendarPage() {
+
+  const calendarRef = useRef<FullCalendar | null>(null);
   const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [view, setView] = useState<"month" | "list">("month");
@@ -23,16 +29,28 @@ export default function CalendarPage() {
     queryKey: ["/api/renewals?withRelations=true"],
   });
 
+  // const handlePreviousMonth = () => {
+  //   const newDate = new Date(currentMonth);
+  //   newDate.setMonth(newDate.getMonth() - 1);
+  //   setCurrentMonth(newDate);
+  // };
+
   const handlePreviousMonth = () => {
-    const newDate = new Date(currentMonth);
-    newDate.setMonth(newDate.getMonth() - 1);
-    setCurrentMonth(newDate);
+    const calendarApi = calendarRef.current?.getApi();
+    calendarApi?.prev();
+    setCurrentMonth(calendarApi?.getDate() ?? new Date());
   };
 
+  // const handleNextMonth = () => {
+  //   const newDate = new Date(currentMonth);
+  //   newDate.setMonth(newDate.getMonth() + 1);
+  //   setCurrentMonth(newDate);
+  // };
+
   const handleNextMonth = () => {
-    const newDate = new Date(currentMonth);
-    newDate.setMonth(newDate.getMonth() + 1);
-    setCurrentMonth(newDate);
+    const calendarApi = calendarRef.current?.getApi();
+    calendarApi?.next();
+    setCurrentMonth(calendarApi?.getDate() ?? new Date());
   };
 
   // Transform renewals for the calendar view
@@ -141,6 +159,7 @@ export default function CalendarPage() {
               <Card>
                 <CardContent className="p-6">
                   <FullCalendar
+                    ref={calendarRef}
                     plugins={[dayGridPlugin]}
                     initialView="dayGridMonth"
                     headerToolbar={false}
