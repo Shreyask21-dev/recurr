@@ -38,7 +38,9 @@ export default function CalendarPage() {
   const handlePreviousMonth = () => {
     const calendarApi = calendarRef.current?.getApi();
     calendarApi?.prev();
-    setCurrentMonth(calendarApi?.getDate() ?? new Date());
+    const newDate = calendarApi?.getDate() ?? new Date();
+    setCurrentMonth(newDate);
+    setSelectedDate(new Date(newDate.getFullYear(), newDate.getMonth(), 1));
   };
 
   // const handleNextMonth = () => {
@@ -50,9 +52,10 @@ export default function CalendarPage() {
   const handleNextMonth = () => {
     const calendarApi = calendarRef.current?.getApi();
     calendarApi?.next();
-    setCurrentMonth(calendarApi?.getDate() ?? new Date());
+    const newDate = calendarApi?.getDate() ?? new Date();
+    setCurrentMonth(newDate);
+    setSelectedDate(new Date(newDate.getFullYear(), newDate.getMonth(), 1));
   };
-
   // Transform renewals for the calendar view
   const getDayRenewals = (day: Date) => {
     return renewals.filter(renewal => {
@@ -95,6 +98,14 @@ export default function CalendarPage() {
     return "bg-blue-100 text-blue-800 border-blue-200";
   };
 
+  const selectedMonthRenewals = renewals.filter(renewal => {
+    const endDate = new Date(renewal.endDate);
+    return (
+      endDate.getMonth() === currentMonth.getMonth() &&
+      endDate.getFullYear() === currentMonth.getFullYear()
+    );
+  });
+
   // Custom renderer for calendar days
   const renderDay = (day: Date) => {
     const dayRenewals = getDayRenewals(day);
@@ -112,6 +123,7 @@ export default function CalendarPage() {
       const daysUntil = Math.ceil((endDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
       return !r.isPaid && daysUntil <= 15 && daysUntil > 0;
     });
+
 
     return (
       <div className="flex gap-1 flex-col items-center mt-1">
@@ -271,13 +283,13 @@ export default function CalendarPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {selectedDayRenewals.length === 0 ? (
+                {selectedMonthRenewals.length === 0 ? (
                   <p className="text-gray-500 text-sm py-4 text-center">
                     No renewals {selectedDate && isToday(selectedDate) ? "today" : "on this day"}
                   </p>
                 ) : (
                   <div className="space-y-3">
-                    {selectedDayRenewals.map(renewal => (
+                    {selectedMonthRenewals.map(renewal => (
                       <div 
                         key={renewal.id}
                         className={`p-3 rounded-md border ${getStatusColor(renewal)}`}

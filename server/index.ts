@@ -46,7 +46,7 @@ app.use((req, res, next) => {
     if (connected) {
       log("Database connection successful", "database");
       try {
-        await initializeDatabase();
+        // await initializeDatabase();
         log("Database initialization completed successfully", "database");
       } catch (dbInitError) {
         const errorMsg = dbInitError instanceof Error ? dbInitError.message : String(dbInitError);
