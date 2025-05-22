@@ -18,40 +18,40 @@ import {
 // Interface for storage operations
 export interface IStorage {
   // Client operations
-  getClients(): Promise<Client[]>;
-  getClient(id: number): Promise<Client | undefined>;
-  createClient(client: InsertClient): Promise<Client>;
-  updateClient(id: number, client: Partial<InsertClient>): Promise<Client | undefined>;
-  deleteClient(id: number): Promise<boolean>;
+  getClients(userId: number): Promise<Client[]>;
+  getClient(id: number, userId: number): Promise<Client | undefined>;
+  createClient(client: InsertClient, userId: number): Promise<Client>;
+  updateClient(id: number, client: Partial<InsertClient>, userId: number): Promise<Client | undefined>;
+  deleteClient(id: number, userId: number): Promise<boolean>;
   
   // Service operations
-  getServices(): Promise<Service[]>;
-  getService(id: number): Promise<Service | undefined>;
-  createService(service: InsertService): Promise<Service>;
-  updateService(id: number, service: Partial<InsertService>): Promise<Service | undefined>;
-  deleteService(id: number): Promise<boolean>;
+  getServices(userId: number): Promise<Service[]>;
+  getService(id: number, userId: number): Promise<Service | undefined>;
+  createService(service: InsertService, userId: number): Promise<Service>;
+  updateService(id: number, service: Partial<InsertService>, userId: number): Promise<Service | undefined>;
+  deleteService(id: number, userId: number): Promise<boolean>;
   
   // Renewal operations
-  getRenewals(): Promise<Renewal[]>;
-  getRenewal(id: number): Promise<Renewal | undefined>;
-  getRenewalsByClient(clientId: number): Promise<Renewal[]>;
-  getRenewalsByService(serviceId: number): Promise<Renewal[]>;
-  getRenewalsWithRelations(): Promise<RenewalWithRelations[]>;
-  getRenewalWithRelations(id: number): Promise<RenewalWithRelations | undefined>;
-  getUpcomingRenewals(days: number): Promise<RenewalWithRelations[]>;
-  createRenewal(renewal: InsertRenewal): Promise<Renewal>;
-  updateRenewal(id: number, renewal: Partial<InsertRenewal>): Promise<Renewal | undefined>;
-  updateRenewalNotificationStatus(id: number, status: boolean): Promise<void>;
-  deleteRenewal(id: number): Promise<boolean>;
+  getRenewals(userId: number): Promise<Renewal[]>;
+  getRenewal(id: number, userId: number): Promise<Renewal | undefined>;
+  getRenewalsByClient(clientId: number, userId: number): Promise<Renewal[]>;
+  getRenewalsByService(serviceId: number, userId: number): Promise<Renewal[]>;
+  getRenewalsWithRelations(userId: number): Promise<RenewalWithRelations[]>;
+  getRenewalWithRelations(id: number, userId: number): Promise<RenewalWithRelations | undefined>;
+  getUpcomingRenewals(days: number, userId: number): Promise<RenewalWithRelations[]>;
+  createRenewal(renewal: InsertRenewal, userId: number): Promise<Renewal>;
+  updateRenewal(id: number, renewal: Partial<InsertRenewal>, userId: number): Promise<Renewal | undefined>;
+  updateRenewalNotificationStatus(id: number, status: boolean, userId: number): Promise<void>;
+  deleteRenewal(id: number, userId: number): Promise<boolean>;
   
   // Activity operations
-  getActivities(limit?: number): Promise<Activity[]>;
-  getActivity(id: number): Promise<Activity | undefined>;
-  createActivity(activity: InsertActivity): Promise<Activity>;
+  getActivities(userId: number,limit?: number): Promise<Activity[]>;
+  getActivity(id: number, userId: number): Promise<Activity | undefined>;
+  createActivity(activity: InsertActivity, userId: number): Promise<Activity>;
   
   // Dashboard operations
-  getDashboardStats(): Promise<DashboardStats>;
-  getMonthlyRevenue(months: number): Promise<{month: string, amount: number}[]>;
+  getDashboardStats( userId: number): Promise<DashboardStats>;
+  getMonthlyRevenue(months: number, userId: number): Promise<{month: string, amount: number}[]>;
 }
 
 // In-memory storage implementation
