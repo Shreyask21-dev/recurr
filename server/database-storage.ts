@@ -334,8 +334,7 @@ export class DatabaseStorage implements IStorage {
     }
   }
  
-  // remaiming 
-  async getRenewalsWithRelations(): Promise<RenewalWithRelations[]> {
+  async getRenewalsWithRelations(userId: number): Promise<RenewalWithRelations[]> {
     try {
       const renewals = await db.query<any[]>(`
         SELECT 
@@ -343,10 +342,11 @@ export class DatabaseStorage implements IStorage {
           c.id as clientId, c.name as clientName, c.email as clientEmail, c.company as clientCompany,
           s.id as serviceId, s.name as serviceName
         FROM renewals r
-        JOIN clients c ON r.clientId = c.id
-        JOIN services s ON r.serviceId = s.id
+        JOIN clients c ON r.clientId = c.id AND c.userId = ?
+        JOIN services s ON r.serviceId = s.id AND s.userId = ?
+        WHERE r.userId = ?
         ORDER BY r.endDate ASC
-      `);
+      `, [userId, userId, userId]);
 
       // Transform result to match RenewalWithRelations structure
       return renewals.map(row => ({
@@ -377,7 +377,7 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async getRenewalWithRelations(id: number): Promise<RenewalWithRelations | undefined> {
+  async getRenewalWithRelations(id: number, userId: number): Promise<RenewalWithRelations | undefined> {
     try {
       const [renewal] = await db.query<any[]>(`
         SELECT 
@@ -385,10 +385,10 @@ export class DatabaseStorage implements IStorage {
           c.id as clientId, c.name as clientName, c.email as clientEmail, c.company as clientCompany,
           s.id as serviceId, s.name as serviceName
         FROM renewals r
-        JOIN clients c ON r.clientId = c.id
-        JOIN services s ON r.serviceId = s.id
-        WHERE r.id = ?
-      `, [id]);
+        JOIN clients c ON r.clientId = c.id AND c.userId = ?
+        JOIN services s ON r.serviceId = s.id AND s.userId = ?
+        WHERE r.id = ? AND r.userId = ?
+      `, [userId, userId,id, userId]);
 
       if (!renewal) {
         return undefined;
@@ -423,7 +423,7 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async getUpcomingRenewals(days: number = 30): Promise<RenewalWithRelations[]> {
+  async getUpcomingRenewals(days: number = 30, userId: number): Promise<RenewalWithRelations[]> {
     try {
       const today = new Date();
       const endDate = new Date();
@@ -438,11 +438,11 @@ export class DatabaseStorage implements IStorage {
           c.id as clientId, c.name as clientName, c.email as clientEmail, c.company as clientCompany,
           s.id as serviceId, s.name as serviceName
         FROM renewals r
-        JOIN clients c ON r.clientId = c.id
-        JOIN services s ON r.serviceId = s.id
-        WHERE r.endDate BETWEEN ? AND ?
+        JOIN clients c ON r.clientId = c.id AND c.userId = ?
+        JOIN services s ON r.serviceId = s.id AND s.userId = ?
+        WHERE r.endDate BETWEEN ? AND ? AND r.userId = ?
         ORDER BY r.endDate ASC
-      `, [formattedToday, formattedEndDate]);
+      `, [userId, userId,formattedToday, formattedEndDate, userId]);
 
       // Transform result to match RenewalWithRelations structure
       return renewals.map(row => ({
@@ -471,9 +471,7 @@ export class DatabaseStorage implements IStorage {
       console.error(`Error fetching upcoming renewals for next ${days} days:`, error);
       return [];
     }
-  }
-
-  // remaining ends 
+  } 
 
   async createRenewal(renewal: InsertRenewal, userId: number): Promise<Renewal> {
     try {
@@ -603,7 +601,7 @@ export class DatabaseStorage implements IStorage {
         })
       });
 
-      return this.getRenewal(id);
+      return this.getRenewal(id, userId);
     } catch (error) {
       console.error(`Error updating renewal with id ${id}:`, error);
       return undefined;
@@ -672,13 +670,13 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  // done till here
+
 
   // Activity operations
-  async getActivities(limit?: number): Promise<Activity[]> {
+  async getActivities(userId: number,limit?: number): Promise<Activity[]> {
     try {
-      let query = `SELECT * FROM activities ORDER BY createdAt DESC`;
-      const params: any[] = [];
+      let query = `SELECT * FROM activities WHERE userId = ? ORDER BY createdAt DESC`;
+      const params: any[] = [userId];
 
       if (limit) {
         query += ` LIMIT ?`;
@@ -693,11 +691,11 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async getActivity(id: number): Promise<Activity | undefined> {
+  async getActivity(id: number, userId: number): Promise<Activity | undefined> {
     try {
       const [activity] = await db.query<Activity[]>(`
-        SELECT * FROM activities WHERE id = ?
-      `, [id]);
+        SELECT * FROM activities WHERE id = ? AND userId = ?
+      `, [id, userId]);
       return activity;
     } catch (error) {
       console.error(`Error fetching activity with id ${id}:`, error);
@@ -705,13 +703,14 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async createActivity(activity: InsertActivity): Promise<Activity> {
+  async createActivity(activity: InsertActivity, userId: number): Promise<Activity> {
     try {
       const result = await db.query(`
         INSERT INTO activities 
-        (type, description, metadata)
-        VALUES (?, ?, ?)
+        (userId, type, description, metadata)
+        VALUES (?, ?, ?, ?)
       `, [
+        userId,
         activity.type,
         activity.description,
         activity.metadata || null
@@ -731,23 +730,23 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Dashboard operations
-  async getDashboardStats(): Promise<DashboardStats> {
+  async getDashboardStats(userId: number): Promise<DashboardStats> {
     try {
       // Total clients
       const [clientCount] = await db.query<[{ count: number }]>(`
-        SELECT COUNT(*) as count FROM clients
-      `);
+        SELECT COUNT(*) as count FROM clients WHERE userId = ?
+      `, [userId]);
 
       // Total services
       const [serviceCount] = await db.query<[{ count: number }]>(`
-        SELECT COUNT(*) as count FROM services
-      `);
+        SELECT COUNT(*) as count FROM services WHERE userId = ?
+      `, [userId]);
 
       // Total revenue
       const [revenueResult] = await db.query<[{ total: number }]>(`
         SELECT SUM(amount) as total FROM renewals
-        WHERE isPaid = 1
-      `);
+        WHERE isPaid = 1 AND userId = ?
+      `, [userId]);
 
       // Upcoming renewals (next 30 days)
       const today = new Date();
@@ -756,24 +755,25 @@ export class DatabaseStorage implements IStorage {
 
       const [upcomingCount] = await db.query<[{ count: number }]>(`
         SELECT COUNT(*) as count FROM renewals
-        WHERE endDate BETWEEN ? AND ?
+        WHERE endDate BETWEEN ? AND ? AND userId = ?
       `, [
         today.toISOString().split('T')[0],
-        thirtyDaysLater.toISOString().split('T')[0]
+        thirtyDaysLater.toISOString().split('T')[0],
+        userId
       ]);
 
       // Overdue renewals
       const [overdueCount] = await db.query<[{ count: number }]>(`
         SELECT COUNT(*) as count FROM renewals
-        WHERE endDate < ? AND isPaid = 0
-      `, [today.toISOString().split('T')[0]]);
+        WHERE endDate < ? AND isPaid = 0 AND userId = ?
+      `, [today.toISOString().split('T')[0], userId]);
 
       // Calculate YTD revenue
       const startOfYear = new Date(today.getFullYear(), 0, 1);
       const [ytdResult] = await db.query<[{ total: number }]>(`
         SELECT SUM(amount) as total FROM renewals
-        WHERE isPaid = 1 AND endDate >= ?
-      `, [startOfYear.toISOString().split('T')[0]]);
+        WHERE isPaid = 1 AND endDate >= ? AND userId = ?
+      `, [startOfYear.toISOString().split('T')[0], userId]);
 
       // Calculate projected revenue (next 12 months)
       const endDateProjection = new Date();
@@ -781,10 +781,11 @@ export class DatabaseStorage implements IStorage {
 
       const [projectedResult] = await db.query<[{ total: number }]>(`
         SELECT SUM(amount) as total FROM renewals
-        WHERE endDate BETWEEN ? AND ?
+        WHERE endDate BETWEEN ? AND ? AND userId = ?
       `, [
         today.toISOString().split('T')[0],
-        endDateProjection.toISOString().split('T')[0]
+        endDateProjection.toISOString().split('T')[0],
+        userId
       ]);
 
       return {
@@ -802,7 +803,7 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async getMonthlyRevenue(months: number = 6): Promise<{ month: string, amount: number }[]> {
+  async getMonthlyRevenue(months: number = 6, userId: number): Promise<{ month: string, amount: number }[]> {
     try {
       const today = new Date();
       const result: { month: string, amount: number }[] = [];
@@ -817,9 +818,10 @@ export class DatabaseStorage implements IStorage {
 
         const [monthData] = await db.query<[{ total: number }]>(`
           SELECT SUM(amount) as total FROM renewals
-          WHERE isPaid = 1
+          WHERE isPaid = 1 AND userId = ?
           AND endDate BETWEEN ? AND ?
         `, [
+          userId,
           startOfMonth.toISOString().split('T')[0],
           endOfMonth.toISOString().split('T')[0]
         ]);
