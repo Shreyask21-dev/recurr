@@ -52,7 +52,7 @@ export function RenewalsTable({ renewals = [], isLoading = false }: RenewalsTabl
       <CardContent className="p-0">
         <div className="overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
+            <table className="w-full  min-w-[800px] border-collapse">
               <thead className="bg-gray-50 sticky top-0 z-10">
                 <tr>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600 border-b border-gray-200">Client</th>

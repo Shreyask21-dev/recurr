@@ -29,11 +29,11 @@ export function CalendarPreview({ renewals = [], isLoading = false }: CalendarPr
   const daysWithRenewals = renewals.reduce((acc, renewal) => {
     const date = new Date(renewal.endDate);
     const dateKey = format(date, 'yyyy-MM-dd');
-    
+
     if (!acc[dateKey]) {
       acc[dateKey] = [];
     }
-    
+
     acc[dateKey].push({
       id: renewal.id,
       client: renewal.client.name,
@@ -45,7 +45,7 @@ export function CalendarPreview({ renewals = [], isLoading = false }: CalendarPr
         (date.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
       )
     });
-    
+
     return acc;
   }, {} as Record<string, Array<{
     id: number;
@@ -60,29 +60,39 @@ export function CalendarPreview({ renewals = [], isLoading = false }: CalendarPr
   // Get renewals for the selected date
   const selectedDateKey = format(selectedDate, 'yyyy-MM-dd');
   const selectedDateRenewals = daysWithRenewals[selectedDateKey] || [];
-  
+
   // Generate days for the current month
   const getDaysInMonth = () => {
     const year = currentMonth.getFullYear();
     const month = currentMonth.getMonth();
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
-    
+
     // Get the number of days from the previous month to fill the first week
     const firstDayOfWeek = firstDay.getDay(); // 0 = Sunday, 1 = Monday, etc.
     const prevMonthDays = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1;
-    
+
     const days = [];
-    
+
     // Previous month days
     const prevMonth = new Date(year, month, 0);
+    // for (let i = prevMonthDays; i > 0; i--) {
+    //   days.push({
+    //     date: new Date(year, month - 1, prevMonth.getDate() - i + 1),
+    //     isCurrentMonth: false,
+    //   });
+    // }
+
     for (let i = prevMonthDays; i > 0; i--) {
+      const date = new Date(year, month - 1, prevMonth.getDate() - i + 1);
       days.push({
-        date: new Date(year, month - 1, prevMonth.getDate() - i + 1),
+        date,
         isCurrentMonth: false,
+        hasRenewals: !!daysWithRenewals[format(date, 'yyyy-MM-dd')],
+        isToday: isToday(date),
       });
     }
-    
+
     // Current month days
     for (let i = 1; i <= lastDay.getDate(); i++) {
       const date = new Date(year, month, i);
@@ -93,18 +103,29 @@ export function CalendarPreview({ renewals = [], isLoading = false }: CalendarPr
         isToday: isToday(date),
       });
     }
-    
+
     // Next month days to fill the last week
     const lastDayOfWeek = lastDay.getDay();
     const nextMonthDays = lastDayOfWeek === 6 ? 0 : 6 - lastDayOfWeek;
-    
+
+    // for (let i = 1; i <= nextMonthDays; i++) {
+    //   days.push({
+    //     date: new Date(year, month + 1, i),
+    //     isCurrentMonth: false,
+    //   });
+    // }
+
     for (let i = 1; i <= nextMonthDays; i++) {
+      const date = new Date(year, month + 1, i);
       days.push({
-        date: new Date(year, month + 1, i),
+        date,
         isCurrentMonth: false,
+        hasRenewals: !!daysWithRenewals[format(date, 'yyyy-MM-dd')],
+        isToday: isToday(date),
       });
     }
-    
+
+
     return days;
   };
 
@@ -113,15 +134,15 @@ export function CalendarPreview({ renewals = [], isLoading = false }: CalendarPr
     if (isPaid) {
       return "bg-green-100 text-green-800 border-green-200";
     }
-    
+
     if (daysRemaining < 0) {
       return "bg-red-100 text-red-800 border-red-200";
     }
-    
+
     if (daysRemaining <= 15) {
       return "bg-yellow-100 text-yellow-800 border-yellow-200";
     }
-    
+
     return "bg-blue-100 text-blue-800 border-blue-200";
   };
 
@@ -184,9 +205,9 @@ export function CalendarPreview({ renewals = [], isLoading = false }: CalendarPr
               const dateKey = format(day.date, 'yyyy-MM-dd');
               const hasRenewals = !!daysWithRenewals[dateKey];
               const isSelected = format(selectedDate, 'yyyy-MM-dd') === dateKey;
-              
+
               return (
-                <div 
+                <div
                   key={i}
                   className={`
                     relative h-10 rounded-md text-xs flex items-center justify-center cursor-pointer
@@ -202,11 +223,11 @@ export function CalendarPreview({ renewals = [], isLoading = false }: CalendarPr
                       {daysWithRenewals[dateKey].map((renewal, i) => {
                         if (i > 2) return null; // Show max 3 dots
                         return (
-                          <div 
+                          <div
                             key={renewal.id}
                             className={`
                               w-1.5 h-1.5 rounded-full
-                              ${renewal.isPaid ? 'bg-green-500' : 
+                              ${renewal.isPaid ? 'bg-green-500' :
                                 renewal.daysRemaining <= 15 ? 'bg-yellow-500' : 'bg-blue-500'}
                             `}
                           />
@@ -231,13 +252,13 @@ export function CalendarPreview({ renewals = [], isLoading = false }: CalendarPr
             </h3>
             <CalendarIcon className="h-4 w-4 text-gray-400" />
           </div>
-          
+
           {selectedDateRenewals.length === 0 ? (
             <p className="text-xs text-gray-500 text-center py-2">No renewals on this date</p>
           ) : (
             <div className="space-y-2 max-h-36 overflow-y-auto">
               {selectedDateRenewals.map(renewal => (
-                <div 
+                <div
                   key={renewal.id}
                   className={`px-2 py-1.5 rounded-md text-xs ${getRenewalStatusStyle(renewal.daysRemaining, renewal.isPaid)}`}
                 >
@@ -245,9 +266,9 @@ export function CalendarPreview({ renewals = [], isLoading = false }: CalendarPr
                   <div className="flex justify-between items-center mt-0.5">
                     <span>{renewal.service}</span>
                     <Badge variant="outline" className={`text-[10px] px-1.5 ${getRenewalStatusStyle(renewal.daysRemaining, renewal.isPaid)}`}>
-                      {renewal.isPaid ? 'Paid' : Math.abs(renewal.daysRemaining) <= 0 ? 'Due today' : 
-                        renewal.daysRemaining < 0 ? `${Math.abs(renewal.daysRemaining)}d overdue` : 
-                        `${renewal.daysRemaining}d left`}
+                      {renewal.isPaid ? 'Paid' : Math.abs(renewal.daysRemaining) <= 0 ? 'Due today' :
+                        renewal.daysRemaining < 0 ? `${Math.abs(renewal.daysRemaining)}d overdue` :
+                          `${renewal.daysRemaining}d left`}
                     </Badge>
                   </div>
                 </div>

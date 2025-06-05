@@ -3,7 +3,7 @@ import { useAuth } from "@/lib/auth";
 
 function LogoutButton() {
   const auth = useAuth();
-  
+
   const handleLogout = () => {
     auth.logout();
     window.location.href = '/login';
@@ -68,7 +68,7 @@ export default function Sidebar() {
 
   return (
     <>
-      {isMobile && (
+      {/* {isMobile && (
         <button
           type="button"
           className="fixed bottom-4 right-4 flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white shadow-lg z-30"
@@ -76,14 +76,41 @@ export default function Sidebar() {
         >
           <Menu className="h-5 w-5" />
         </button>
+      )} */}
+
+      {/* {isMobile && !isOpen && (
+        <button
+          type="button"
+          className="fixed top-4 left-4 z-50 flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white shadow-lg"
+          onClick={() => setIsOpen(true)}
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+      )} */}
+
+      {isMobile && !isOpen && (
+        <button
+          type="button"
+          className="fixed top-4 right-4 z-50 flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white shadow-lg"
+          onClick={() => setIsOpen(true)}
+        >
+          <Menu className="h-5 w-5" />
+        </button>
       )}
 
-      <aside
+
+
+      {/* <aside
         className={`${
           isOpen
             ? "fixed inset-y-0 z-20 flex flex-col flex-shrink-0 w-64 min-h-screen bg-white border-r shadow-lg lg:z-auto lg:static lg:shadow-none"
             : "hidden lg:fixed lg:inset-y-0 lg:z-20 lg:flex lg:flex-col lg:flex-shrink-0 lg:w-64 lg:min-h-screen lg:bg-white lg:border-r lg:shadow-lg lg:z-auto lg:static lg:shadow-none"
         }`}
+      > */}
+      <aside
+        className={`fixed top-0 left-0 z-40 h-full w-64 bg-white shadow-md transform transition-transform duration-300 ease-in-out
+    ${isOpen ? "translate-x-0" : "-translate-x-full"} 
+    lg:translate-x-0 lg:static lg:shadow-none`}
       >
         <div className="flex items-center justify-between flex-shrink-0 p-4">
           <Link href="/dashboard" className="flex items-center space-x-2">
@@ -92,7 +119,7 @@ export default function Sidebar() {
             </span>
             <span className="text-xl font-bold">ReQurr</span>
           </Link>
-          {isMobile && (
+          {/* {isMobile && (
             <button
               type="button"
               className="p-2 rounded-md lg:hidden"
@@ -100,25 +127,34 @@ export default function Sidebar() {
             >
               <X className="w-6 h-6" />
             </button>
+          )} */}
+          {isMobile && (
+            <button
+              type="button"
+              className="p-2 rounded-md z-50"
+              onClick={() => setIsOpen(false)}
+            >
+              <X className="w-6 h-6" />
+            </button>
           )}
+
         </div>
 
         <nav className="flex-1 overflow-auto">
           <ul className="p-2 overflow-hidden">
             {navItems.map((item) => {
-              const isActive = location === item.path || 
+              const isActive = location === item.path ||
                 (item.path === "/dashboard" && location === "/");
               const Icon = item.icon;
-              
+
               return (
                 <li key={item.path}>
                   <Link
                     href={item.path}
-                    className={`flex items-center p-2 space-x-2 rounded-md ${
-                      isActive
-                        ? "bg-blue-50 text-blue-700 font-medium"
-                        : "hover:bg-blue-50 hover:text-blue-700"
-                    }`}
+                    className={`flex items-center p-2 space-x-2 rounded-md ${isActive
+                      ? "bg-blue-50 text-blue-700 font-medium"
+                      : "hover:bg-blue-50 hover:text-blue-700"
+                      }`}
                   >
                     <Icon className="w-5 h-5" />
                     <span>{item.label}</span>
