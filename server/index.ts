@@ -85,7 +85,7 @@ app.use((req, res, next) => {
   const port = 5000;
   server.listen({
     port,
-    host: "127.0.0.1",  // Bind explicitly to IPv4 loopback
+    host: "0.0.0.0",  // Bind explicitly to IPv4 loopback
     // reusePort removed to avoid the ENOTSUP error on macOS
   }, () => {
     log(`serving on port ${port}`);
